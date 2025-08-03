@@ -1,7 +1,8 @@
-"use client";
+ "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 type TabType = "signup" | "login";
 
@@ -28,6 +29,8 @@ export default function SignupPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // TODO: Implement /api/auth/register and [...nextauth].ts with a Credentials provider, password hashing (bcrypt), and a persistent user store (e.g., Prisma/PostgreSQL).
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -74,7 +77,6 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) {
       return;
     }
@@ -82,13 +84,43 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful authentication
-      console.log(`${activeTab === "signup" ? "Sign up" : "Login"} successful:`, formData.email);
-      
-      // Redirect to profile setup
+      if (activeTab === "signup") {
+        // Register the user via your custom registration endpoint. That endpoint must handle hashing (e.g., bcrypt) and storing the user.
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email, password: formData.password }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setErrors({ general: data?.error || "Registration failed" });
+          return;
+        }
+        // After successful registration, immediately sign in using NextAuth credentials provider
+        const signInRes = await signIn("credentials", {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+        } as any);
+        // @ts-ignore next-auth returns error string on failure
+        if (signInRes?.error) {
+          setErrors({ general: signInRes.error });
+          return;
+        }
+      } else {
+        // Login flow
+        const signInRes = await signIn("credentials", {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+        } as any);
+        // @ts-ignore
+        if (signInRes?.error) {
+          setErrors({ general: signInRes.error });
+          return;
+        }
+      }
+
       router.push("/profile-setup");
     } catch (error) {
       setErrors({ general: "An error occurred. Please try again." });

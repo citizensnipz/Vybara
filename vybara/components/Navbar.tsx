@@ -54,7 +54,7 @@ export default function Navbar() {
 
   const navItems = [
     { href: "/", label: "Home" },
-    { href: "/profile-setup", label: "Profile" },
+    { href: "/profile", label: "Profile" },
     { href: "/match", label: "Matches" },
     { href: "/chat", label: "Chats" },
     { href: "/account", label: "Account" },
@@ -62,8 +62,8 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 pb-2 pt-2 z-50 bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-10">
           {/* Logo/Brand */}
           <Link
             href="/"
@@ -73,9 +73,9 @@ export default function Navbar() {
             <Image
               src="/logoName.png"
               alt="Vybara"
-              width={190}
-              height={64}
-              className="h-16 w-auto"
+              width={95}
+              height={32}
+              className="h-10 w-auto"
               priority
             />
           </Link>
