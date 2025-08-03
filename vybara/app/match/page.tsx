@@ -1,180 +1,127 @@
 "use client";
 
-import { useState } from "react";
+import MatchCard from "../../components/MatchCard";
 
 interface Match {
-  id: number;
+  id: string;
+  avatarUrl?: string;
   name: string;
   age: number;
-  pronouns: string;
-  whatMakesYouFeelAlive: string;
-  somethingAboutMe: string;
+  sex: string;
+  location: string;
+  summary: string;
+  promptLabel: string;
+  promptResponse: string;
 }
 
-const mockMatches: Match[] = [
+const dummyMatches: Match[] = [
   {
-    id: 1,
+    id: "1",
     name: "Alex",
     age: 28,
-    pronouns: "they/them",
-    whatMakesYouFeelAlive: "Exploring new cities and discovering hidden coffee shops where I can people-watch while reading a good book. There's something magical about being in a new place and feeling completely anonymous yet connected to the world around me.",
-    somethingAboutMe: "I'm an introvert who loves deep conversations but needs time to recharge. I often get lost in thought about the meaning of life and find beauty in small moments that others might miss."
+    sex: "F",
+    location: "Berlin",
+    summary: "Passionate about sustainable living and finding beauty in everyday moments.",
+    promptLabel: "What makes you feel alive?",
+    promptResponse: "Exploring new cities and discovering hidden coffee shops where I can people-watch while reading a good book. There's something magical about being in a new place and feeling completely anonymous yet connected to the world around me. I love the way travel opens your mind to different perspectives and reminds you that there are infinite ways to live a meaningful life."
   },
   {
-    id: 2,
+    id: "2",
     name: "Jordan",
     age: 31,
-    pronouns: "he/him",
-    whatMakesYouFeelAlive: "Playing guitar under the stars and writing songs that capture the emotions I can't express in words. Music has always been my way of connecting with the world and understanding my own feelings.",
-    somethingAboutMe: "I'm passionate about mental health advocacy and believe everyone deserves to be heard without judgment. I've learned that vulnerability is actually a strength, not a weakness."
+    sex: "M",
+    location: "Amsterdam",
+    summary: "Musician and mental health advocate who believes in the power of vulnerability.",
+    promptLabel: "Something I wish more people understood about me...",
+    promptResponse: "I'm passionate about mental health advocacy and believe everyone deserves to be heard without judgment. I've learned that vulnerability is actually a strength, not a weakness. When I share my struggles with anxiety and depression, it often helps others feel less alone. I wish more people understood that it's okay to not be okay, and that asking for help is a sign of courage, not weakness."
   },
   {
-    id: 3,
+    id: "3",
     name: "Sam",
     age: 26,
-    pronouns: "she/her",
-    whatMakesYouFeelAlive: "Hiking in the mountains and feeling completely insignificant yet somehow more connected to everything. There's nothing like reaching a summit and realizing how small we are in the grand scheme of things.",
-    somethingAboutMe: "I'm a recovering perfectionist who's learning to embrace imperfection. I used to think I had to have everything figured out, but now I find beauty in the messy, uncertain parts of life."
+    sex: "NB",
+    location: "Stockholm",
+    summary: "Hiker and recovering perfectionist who finds beauty in imperfection.",
+    promptLabel: "What makes you feel alive?",
+    promptResponse: "Hiking in the mountains and feeling completely insignificant yet somehow more connected to everything. There's nothing like reaching a summit and realizing how small we are in the grand scheme of things. It puts everything into perspective and reminds me that my problems aren't as big as they seem. I'm a recovering perfectionist who's learning to embrace imperfection."
+  },
+  {
+    id: "4",
+    name: "Taylor",
+    age: 29,
+    sex: "F",
+    location: "Copenhagen",
+    summary: "Environmental scientist who believes in the power of small actions to create big change.",
+    promptLabel: "Something I wish more people understood about me...",
+    promptResponse: "I'm an introvert who needs time to recharge, but that doesn't mean I don't want to connect with people. I actually crave deep, meaningful conversations, but I need to feel safe and comfortable first. I wish more people understood that being quiet doesn't mean I'm not interested or engaged - sometimes I'm just processing and thinking deeply about what's being said."
+  },
+  {
+    id: "5",
+    name: "Casey",
+    age: 33,
+    sex: "M",
+    location: "Vienna",
+    summary: "Chef who believes food is the universal language of love and connection.",
+    promptLabel: "What makes you feel alive?",
+    promptResponse: "Creating meals that bring people together and watching their faces light up when they taste something delicious. Food has this incredible power to create memories and foster connections. When I'm in the kitchen, I feel completely in my element - it's like meditation for me. I love experimenting with flavors and learning about different cuisines from around the world."
   }
 ];
 
 export default function MatchPage() {
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [hasLiked, setHasLiked] = useState<number[]>([]);
-  const [hasPassed, setHasPassed] = useState<number[]>([]);
-
-  const currentMatch = mockMatches[currentMatchIndex];
-  const isLastMatch = currentMatchIndex === mockMatches.length - 1;
-
-  const handleLike = () => {
-    if (currentMatch) {
-      setHasLiked(prev => [...prev, currentMatch.id]);
-      if (!isLastMatch) {
-        setCurrentMatchIndex(prev => prev + 1);
-      }
-    }
+  const handleDismiss = (matchId: string) => {
+    console.log(`Dismissed match: ${matchId}`);
+    // In a real app, this would update the backend
   };
 
-  const handlePass = () => {
-    if (currentMatch) {
-      setHasPassed(prev => [...prev, currentMatch.id]);
-      if (!isLastMatch) {
-        setCurrentMatchIndex(prev => prev + 1);
-      }
-    }
+  const handleInvite = (matchId: string) => {
+    console.log(`Invited match to chat: ${matchId}`);
+    // In a real app, this would create a chat and redirect
   };
-
-  const handleSkip = () => {
-    if (!isLastMatch) {
-      setCurrentMatchIndex(prev => prev + 1);
-    }
-  };
-
-  if (currentMatchIndex >= mockMatches.length) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
-          <div className="text-6xl mb-4">💫</div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            No more matches for now
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
-            We're working on finding more people who might be a great match for you. Check back later!
-          </p>
-          <button
-            onClick={() => {
-              setCurrentMatchIndex(0);
-              setHasLiked([]);
-              setHasPassed([]);
-            }}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Start Over
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] py-8">
-      {/* Match Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
-        {/* Profile Header */}
-        <div className="text-center mb-6">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-            {currentMatch.name.charAt(0)}
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {currentMatch.name}, {currentMatch.age}
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 text-sm">
-            {currentMatch.pronouns}
+    <div className="py-8">
+      <div className="max-w-2xl mx-auto p-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Your Matches
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            People who might be a great fit for you
           </p>
         </div>
 
-        {/* Profile Content */}
-        <div className="space-y-6">
-          {/* What makes you feel alive */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              What makes me feel alive:
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              {currentMatch.whatMakesYouFeelAlive}
+        {/* Matches List */}
+        <div className="space-y-4">
+          {dummyMatches.map((match) => (
+            <MatchCard
+              key={match.id}
+              avatarUrl={match.avatarUrl}
+              name={match.name}
+              age={match.age}
+              sex={match.sex}
+              location={match.location}
+              summary={match.summary}
+              promptLabel={match.promptLabel}
+              promptResponse={match.promptResponse}
+              onDismiss={() => handleDismiss(match.id)}
+              onInvite={() => handleInvite(match.id)}
+            />
+          ))}
+        </div>
+
+        {/* Empty State (when no matches) */}
+        {dummyMatches.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">💫</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              No more matches for now
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              We're working on finding more people who might be a great match for you. Check back later!
             </p>
           </div>
-
-          {/* Something about me */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Something I wish more people understood about me:
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              {currentMatch.somethingAboutMe}
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-center space-x-4 mt-8">
-          <button
-            onClick={handlePass}
-            className="flex items-center justify-center w-16 h-16 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors shadow-lg"
-            aria-label="Pass on this match"
-          >
-            <span className="text-2xl">❌</span>
-          </button>
-
-          <button
-            onClick={handleSkip}
-            className="flex items-center justify-center w-16 h-16 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-colors shadow-lg"
-            aria-label="Skip for now"
-          >
-            <span className="text-2xl">⏭️</span>
-          </button>
-
-          <button
-            onClick={handleLike}
-            className="flex items-center justify-center w-16 h-16 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors shadow-lg"
-            aria-label="Like this match"
-          >
-            <span className="text-2xl">❤️</span>
-          </button>
-        </div>
-
-        {/* Progress Indicator */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {currentMatchIndex + 1} of {mockMatches.length}
-          </p>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="mt-6 flex space-x-6 text-sm text-gray-600 dark:text-gray-300">
-        <span>❤️ {hasLiked.length} liked</span>
-        <span>❌ {hasPassed.length} passed</span>
+        )}
       </div>
     </div>
   );
