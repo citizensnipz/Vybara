@@ -1,4 +1,5 @@
 import ChatSidebar from "../../components/ChatSidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Dummy chat data for sidebar
 const chats = [
@@ -31,13 +32,15 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-      <div className="max-w-3xl mx-auto flex flex-col min-h-screen p-4">
-        <div className="flex-grow relative">
-          {children}
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+        <div className="max-w-3xl mx-auto flex flex-col min-h-screen p-4">
+          <div className="flex-grow relative">
+            {children}
+          </div>
         </div>
+        <ChatSidebar chats={chats} />
       </div>
-      <ChatSidebar chats={chats} />
-    </div>
+    </ProtectedRoute>
   );
 } 

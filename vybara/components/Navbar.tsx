@@ -4,12 +4,24 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -52,6 +64,14 @@ export default function Navbar() {
     setIsDropdownOpen(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/profile", label: "Profile" },
@@ -61,9 +81,9 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 pb-2 pt-2 z-50 bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
+    <nav className="sticky top-0 pb-2 pt-2 z-50 bg-[var(--color-surface)] shadow-sm">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-10">
+        <div className="flex justify-between items-center h-15">
           {/* Logo/Brand */}
           <Link
             href="/"
@@ -80,8 +100,67 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Hamburger Menu Button */}
-          <div className="relative">
+          {/* Links and Account Icon for Medium Screens and Larger */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link
+              href="/chat"
+              className={`text-sm font-medium transition-colors ${
+                pathname === "/chat"
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              Chats
+            </Link>
+            <Link
+              href="/match"
+              className={`text-sm font-medium transition-colors ${
+                pathname === "/match"
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              Matches
+            </Link>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/signup"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Login/Signup
+              </Link>
+            )}
+            <Link
+              href="/profile"
+              className="p-2 rounded-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+              aria-label="Profile"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-6 h-6 text-gray-600 dark:text-gray-300"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 9A3.75 3.75 0 1112 5.25 3.75 3.75 0 0115.75 9zM4.5 18.75a8.25 8.25 0 0115 0"
+                />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Hamburger Menu Button for Smaller Screens */}
+          <div className="relative md:hidden">
             <button
               ref={buttonRef}
               onClick={toggleDropdown}
@@ -133,6 +212,16 @@ export default function Navbar() {
                     {item.label}
                   </Link>
                 ))}
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    closeDropdown();
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                  role="menuitem"
+                >
+                  Logout
+                </button>
               </div>
             )}
           </div>
@@ -140,4 +229,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-} 
+}

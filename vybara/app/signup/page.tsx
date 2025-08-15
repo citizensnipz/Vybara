@@ -1,8 +1,15 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { auth } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
+
 
 type TabType = "signup" | "login";
 
@@ -30,7 +37,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // TODO: Implement /api/auth/register and [...nextauth].ts with a Credentials provider, password hashing (bcrypt), and a persistent user store (e.g., Prisma/PostgreSQL).
+  // TODO: Replace this with Firebase Auth or your custom authentication backend.
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,53 +92,27 @@ export default function SignupPage() {
 
     try {
       if (activeTab === "signup") {
-        // Register the user via your custom registration endpoint. That endpoint must handle hashing (e.g., bcrypt) and storing the user.
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email, password: formData.password }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          setErrors({ general: data?.error || "Registration failed" });
-          return;
-        }
-        // After successful registration, immediately sign in using NextAuth credentials provider
-        const signInRes = await signIn("credentials", {
-          redirect: false,
-          email: formData.email,
-          password: formData.password,
-        } as any);
-        // @ts-ignore next-auth returns error string on failure
-        if (signInRes?.error) {
-          setErrors({ general: signInRes.error });
-          return;
-        }
+        await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       } else {
-        // Login flow
-        const signInRes = await signIn("credentials", {
-          redirect: false,
-          email: formData.email,
-          password: formData.password,
-        } as any);
-        // @ts-ignore
-        if (signInRes?.error) {
-          setErrors({ general: signInRes.error });
-          return;
-        }
+        await signInWithEmailAndPassword(auth, formData.email, formData.password);
       }
 
       router.push("/profile-setup");
-    } catch (error) {
-      setErrors({ general: "An error occurred. Please try again." });
+    } catch (error: any) {
+      setErrors({ general: error.message || "An error occurred. Please try again." });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleAuth = () => {
-    // Placeholder for Google OAuth
-    console.log("Google OAuth clicked");
+  const handleGoogleAuth = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push("/profile-setup");
+    } catch (error: any) {
+      setErrors({ general: error.message || "Google sign-in failed." });
+    }
   };
 
   const switchTab = (tab: TabType) => {
